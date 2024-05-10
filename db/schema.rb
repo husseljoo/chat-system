@@ -26,17 +26,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_10_081105) do
     t.integer "messages_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["token", "number"], name: "index_chats_on_token_and_number", unique: true
   end
 
   create_table "messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "chat_id", null: false
+    t.string "token", null: false
     t.string "chat_number", null: false
     t.text "body"
     t.integer "number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["chat_id"], name: "index_messages_on_chat_id"
   end
 
-  add_foreign_key "messages", "chats"
 end

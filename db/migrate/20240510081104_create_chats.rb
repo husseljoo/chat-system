@@ -7,5 +7,6 @@ class CreateChats < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
+    add_index :chats, [:token, :number], unique: true
   end
 end
