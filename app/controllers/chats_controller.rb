@@ -19,18 +19,19 @@ class ChatsController < ApplicationController
   def create
     token = params[:token]
     puts "TOKEN:  #{token}"
-    application_id = Application.find_by(token: token)&.id
-    puts "App Id:  #{application_id}"
 
     # chat_number = fetch_chat_number(params[:application_token])
     url = "http://localhost:8081/chat?app_token=#{token}"
     puts "URL:  #{url}"
     chat_number = fetch_chat_number(url, "POST")
+    puts "Chat Number:  #{chat_number}"
     if chat_number.nil?
-      render json: { error: "Failed to retrieve chat_number" }, status: :unprocessable_entity
+      render json: { error: "Failed to find application with token '#{token}'" }, status: :unprocessable_entity
       return
     end
-    puts "Chat Number:  #{chat_number}"
+
+    application_id = Application.find_by(token: token)&.id
+    puts "App Id:  #{application_id}"
 
     chat = Chat.new(application_id: application_id, token: token, number: chat_number)
 
