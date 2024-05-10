@@ -14,13 +14,15 @@ default: &default
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: root
-  password:
-  host: localhost
+  password: <%= ENV.fetch("DB_PASSWORD") { root } %>
+  host: 127.0.0.1
+  port: 3307
 
 development:
   <<: *default
   database: chat_system_development
 
+  # password: <%= ENV.fetch("CHAT_SYSTEM_DATABASE_PASSWORD") { "root" } %>
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
@@ -51,5 +53,6 @@ test:
 production:
   <<: *default
   database: chat_system_production
-  username: chat_system
-  password: <%= ENV["CHAT_SYSTEM_DATABASE_PASSWORD"] %>
+  username: root
+  password: <%= ENV.fetch("CHAT_SYSTEM_DATABASE_PASSWORD") { "root" } %>
+  port: 3307
