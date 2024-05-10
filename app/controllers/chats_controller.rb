@@ -19,7 +19,8 @@ class ChatsController < ApplicationController
   def create
     token = params[:token]
     puts "TOKEN:  #{token}"
-    url = "http://localhost:8081/chat?app_token=#{token}"
+    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
+    url = "#{base_url}/chat?app_token=#{token}"
     puts "URL:  #{url}"
     chat_number = fetch_chat_number(url, "POST")
     puts "Chat Number:  #{chat_number}"

@@ -24,11 +24,12 @@ class ApplicationsController < ApplicationController
   def create
     token = generate_token
 
-    url = "http://localhost:8081/chat?app_token=#{token}"
+    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
+    url = "#{base_url}/chat?app_token=#{token}"
     puts "URL:  #{url}"
     res = set_token_redis(url)
     puts "Res:  #{res}"
-    if res == false
+    if res.nil? || res == false
       render json: { error: "Failed to set token: #{token}" }, status: :unprocessable_entity
       return
     end

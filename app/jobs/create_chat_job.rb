@@ -9,7 +9,10 @@ class CreateChatJob < ApplicationJob
     # puts "Chat Number in ActiveJob:  #{chat_number}"
 
     puts "INSIDE CreateChatJob, TOKEN:  #{token}, CHAT NUMBER:  #{chat_number}"
-    url = "http://localhost:8081/message?app_token=#{token}&chat_number=#{chat_number}"
+
+    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
+    url = "#{base_url}/message?app_token=#{token}&chat_number=#{chat_number}"
+
     puts "URL:  #{url}"
     res = set_token_redis(url)
     chat = Chat.new(token: token, number: chat_number)

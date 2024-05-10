@@ -20,7 +20,9 @@ class MessagesController < ApplicationController
     token = params[:token]
     chat_number = params[:chat_number]
     puts "TOKEN:  #{token}, CHAT NUMBER:  #{chat_number}"
-    url = "http://localhost:8081/message?app_token=#{token}&chat_number=#{chat_number}"
+
+    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
+    url = "#{base_url}/message?app_token=#{token}&chat_number=#{chat_number}"
     puts "Message URL:  #{url}"
     message_number = fetch_message_number(url, "POST")
     puts "Message Number:  #{message_number}"
