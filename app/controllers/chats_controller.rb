@@ -1,0 +1,104 @@
+require "net/http"
+
+class ChatsController < ApplicationController
+  before_action :set_chat, only: %i[ show update destroy ]
+
+  # GET /chats
+  def index
+    @chats = Chat.all
+
+    render json: @chats
+  end
+
+  # GET /chats/1
+  def show
+    render json: @chat
+  end
+
+  # POST /chats
+  def create
+    token = params[:token]
+    puts "TOKEN:  #{token}"
+    application_id = Application.find_by(token: token)&.id
+    puts "App Id:  #{application_id}"
+
+    # chat_number = fetch_chat_number(params[:application_token])
+    url = "http://localhost:8081/chat?app_token=#{token}"
+    puts "URL:  #{url}"
+    chat_number = fetch_chat_number(url, "POST")
+    if chat_number.nil?
+      render json: { error: "Failed to retrieve chat_number" }, status: :unprocessable_entity
+      return
+    end
+    puts "Chat Number:  #{chat_number}"
+
+    chat = Chat.new(application_id: application_id, token: token, number: chat_number)
+
+    if chat.save
+      # render json: chat, status: :created, location: chat
+      render json: { chat_number: chat_number }, status: :created, location: chat
+    else
+      render json: chat.errors, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH/PUT /chats/1
+  def update
+    if @chat.update(chat_params)
+      render json: @chat
+    else
+      render json: @chat.errors, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /chats/1
+  def destroy
+    @chat.destroy!
+  end
+
+  private
+
+  # Use callbacks to share common setup or constraints between actions.
+  def set_chat
+    @chat = Chat.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def chat_params
+    params.fetch(:chat, {})
+  end
+
+  def fetch_chat_number(url, method)
+    uri = URI(url)
+
+    # Define the request based on the specified method (POST or GET)
+    if method.upcase == "POST"
+      request = Net::HTTP::Post.new(uri)
+    elsif method.upcase == "GET"
+      request = Net::HTTP::Get.new(uri)
+    else
+      puts "Invalid method. Please specify either 'POST' or 'GET'."
+      return nil
+    end
+
+    begin
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
+
+      # Check if the response is successful (HTTP status code 200)
+      if response.is_a?(Net::HTTPSuccess)
+        body = JSON.parse(response.body)
+        return body["chat_number"]
+      else
+        # Handle non-200 responses gracefully
+        puts "Error: #{response.code} - #{response.message}"
+        return nil
+      end
+    rescue StandardError => e
+      # Handle any unexpected errors during the HTTP request
+      puts "Error: #{e.message}"
+      return nil
+    end
+  end
+end
