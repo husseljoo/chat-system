@@ -71,7 +71,6 @@ class ChatsController < ApplicationController
   def fetch_chat_number(url, method)
     uri = URI(url)
 
-    # Define the request based on the specified method (POST or GET)
     if method.upcase == "POST"
       request = Net::HTTP::Post.new(uri)
     elsif method.upcase == "GET"
@@ -86,17 +85,14 @@ class ChatsController < ApplicationController
         http.request(request)
       end
 
-      # Check if the response is successful (HTTP status code 200)
       if response.is_a?(Net::HTTPSuccess)
         body = JSON.parse(response.body)
         return body["chat_number"]
       else
-        # Handle non-200 responses gracefully
         puts "Error: #{response.code} - #{response.message}"
         return nil
       end
     rescue StandardError => e
-      # Handle any unexpected errors during the HTTP request
       puts "Error: #{e.message}"
       return nil
     end
