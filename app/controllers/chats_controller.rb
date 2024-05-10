@@ -19,8 +19,6 @@ class ChatsController < ApplicationController
   def create
     token = params[:token]
     puts "TOKEN:  #{token}"
-
-    # chat_number = fetch_chat_number(params[:application_token])
     url = "http://localhost:8081/chat?app_token=#{token}"
     puts "URL:  #{url}"
     chat_number = fetch_chat_number(url, "POST")
@@ -30,17 +28,8 @@ class ChatsController < ApplicationController
       return
     end
 
-    application_id = Application.find_by(token: token)&.id
-    puts "App Id:  #{application_id}"
-
-    chat = Chat.new(application_id: application_id, token: token, number: chat_number)
-
-    if chat.save
-      # render json: chat, status: :created, location: chat
-      render json: { chat_number: chat_number }, status: :created, location: chat
-    else
-      render json: chat.errors, status: :unprocessable_entity
-    end
+    CreateChatJob.perform_later(token, chat_number)
+    render json: { chat_number: chat_number }, status: :created
   end
 
   # PATCH/PUT /chats/1
