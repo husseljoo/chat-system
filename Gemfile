@@ -45,5 +45,6 @@ group :development do
   # gem "spring"
 end
 
-
 gem "sidekiq", "~> 7.2"
+
+gem "elasticsearch-model", "~> 7.2"

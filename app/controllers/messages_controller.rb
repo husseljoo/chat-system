@@ -46,6 +46,38 @@ class MessagesController < ApplicationController
     end
   end
 
+  def search
+    token = params[:token]
+    puts "TOKEN:  #{token}"
+    chat_number = params[:chat_number]
+    puts "CHAT NUMBER:  #{chat_number}"
+    query = params[:query]
+    puts "QUERY:  #{query}"
+    if token.blank? || chat_number.blank? || query.blank?
+      render json: { error: "Missing parameters. Please provide token, chat_number, and query." }, status: :unprocessable_entity
+      return
+    end
+
+    unless chat = Chat.find_by(token: token, number: chat_number)
+      render json: { error: "Failed to find chat with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
+      return
+    end
+    puts chat
+    puts "CHAT.ID:  #{chat.id}"
+
+    # @messages = Message.search(query, chat.id)
+    # render json: @messages
+
+    begin
+      @messages = Message.search(query, chat.id)
+      render json: @messages
+    rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
+      render json: { error: "Elasticsearch error: #{e.message}" }, status: :unprocessable_entity
+    rescue StandardError => e
+      render json: { error: "An unexpected error occurred: #{e.message}" }, status: :internal_server_error
+    end
+  end
+
   # DELETE /messages/1
   def destroy
     @message.destroy!
