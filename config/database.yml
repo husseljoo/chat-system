@@ -9,19 +9,18 @@
 # And be sure to use new-style password hashing:
 #   https://dev.mysql.com/doc/refman/5.7/en/password-hashing.html
 #
-# password: <%= ENV.fetch("DB_PASSWORD") { root } %>
 default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password: <%= ENV.fetch("DB_PASSWORD") { root } %>
-  host: 127.0.0.1
-  port: 3307
+  username: <%= ENV.fetch("DB_USERNAME") { "root" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "root" } %>
+  host: <%= ENV.fetch("DB_HOST") { "127.0.0.1" } %>
+  port: <%= ENV.fetch("DB_PORT") { 3307 } %>
 
 development:
   <<: *default
-  database: chat_system_development
+  database: chat_system
 
   # password: <%= ENV.fetch("CHAT_SYSTEM_DATABASE_PASSWORD") { "root" } %>
 # Warning: The database defined as "test" will be erased and
@@ -54,6 +53,5 @@ test:
 production:
   <<: *default
   database: chat_system_production
-  username: root
   password: <%= ENV.fetch("CHAT_SYSTEM_DATABASE_PASSWORD") { "root" } %>
   port: 3307
