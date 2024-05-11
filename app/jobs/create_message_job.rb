@@ -7,7 +7,7 @@ class CreateMessageJob < ApplicationJob
     if message.save
       puts "Message saved successfully"
     else
-      puts "Error saving message: #{chat.errors.full_messages.join(", ")}"
+      puts "Error saving message: #{message.errors.full_messages.join(", ")}"
     end
   end
 end
