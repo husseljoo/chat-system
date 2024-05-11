@@ -30,8 +30,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_10_081105) do
   end
 
   create_table "messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "token", null: false
-    t.string "chat_number", null: false
+    t.integer "chat_id", null: false
     t.text "body"
     t.integer "number", null: false
     t.datetime "created_at", null: false
