@@ -69,8 +69,9 @@ class MessagesController < ApplicationController
     # render json: @messages
 
     begin
-      @messages = Message.search(query, chat.id)
-      render json: @messages
+      messages = Message.search(query, chat.id)
+      messages = Message.all.map { |message| message.slice(:body, :number) }
+      render json: messages
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
       render json: { error: "Elasticsearch error: #{e.message}" }, status: :unprocessable_entity
     rescue StandardError => e
