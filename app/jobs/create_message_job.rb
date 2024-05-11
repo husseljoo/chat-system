@@ -1,8 +1,8 @@
 class CreateMessageJob < ApplicationJob
   queue_as :default
 
-  def perform(token, chat_number, message_number)
-    message = Message.create!(number: message_number, chat: Chat.where(token: token, number: chat_number).limit(1).select(:id).take)
+  def perform(token, chat_number, message_number, body)
+    message = Message.create!(number: message_number, body: body, chat: Chat.where(token: token, number: chat_number).limit(1).select(:id).take)
 
     if message.persisted?
       puts "Message saved successfully with ID: #{message.id}"

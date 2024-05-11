@@ -19,6 +19,8 @@ class MessagesController < ApplicationController
   def create
     token = params[:token]
     chat_number = params[:chat_number]
+    body = params[:body]
+    puts "body:  #{body}"
     puts "TOKEN:  #{token}, CHAT NUMBER:  #{chat_number}"
 
     base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
@@ -31,7 +33,7 @@ class MessagesController < ApplicationController
       return
     end
 
-    CreateMessageJob.perform_later(token, chat_number, message_number)
+    CreateMessageJob.perform_later(token, chat_number, message_number, body)
     render json: { message_number: message_number }, status: :created
   end
 
