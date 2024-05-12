@@ -3,11 +3,23 @@ require "net/http"
 class MessagesController < ApplicationController
   before_action :set_message, only: %i[ show update destroy ]
 
-  # GET /messages
-  def index
+  def all_messages
     @messages = Message.all
-
     render json: @messages
+  end
+
+  # GET /applications/{application_token}/chats/{chat_number}/messages
+  def index
+    puts "PARAMS:  #{params}, GANGGGG"
+    @chat = Chat.find_by(token: params[:application_token], number: params[:chat_number])
+
+    if @chat.nil?
+      render json: { error: "Chat not found" }, status: :not_found
+      return
+    end
+
+    @messages = Message.where(chat_id: @chat.id)
+    render json: @messages.as_json(only: [:number, :body])
   end
 
   # GET /messages/1
