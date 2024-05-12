@@ -17,7 +17,7 @@ class ChatsController < ApplicationController
 
   # GET /applications/{application_token}/chats/{number}
   def show
-    render json: @chats.as_json(only: [:token, :number, :messages_count])
+    render json: @chat.as_json(only: [:token, :number, :messages_count])
   end
 
   # POST /chats
