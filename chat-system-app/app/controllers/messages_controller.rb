@@ -2,6 +2,7 @@ require "net/http"
 
 class MessagesController < ApplicationController
   before_action :set_message, only: %i[ show update destroy ]
+  SEQUENCE_GENERATOR_URL = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
 
   def all_messages
     @messages = Message.all
@@ -12,7 +13,6 @@ class MessagesController < ApplicationController
   def index
     query = params[:query]
     if query.present?
-      puts "query:  #{query}, inside message_controller!"
       search_messages_by_query
       return
     end
@@ -38,14 +38,9 @@ class MessagesController < ApplicationController
     token = params[:application_token]
     chat_number = params[:chat_number]
     body = params[:body]
-    puts "body:  #{body}"
-    puts "TOKEN:  #{token}, CHAT NUMBER:  #{chat_number}"
 
-    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
-    url = "#{base_url}/message?app_token=#{token}&chat_number=#{chat_number}"
-    puts "Message URL:  #{url}"
+    url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
     message_number = fetch_message_number(url, "POST")
-    puts "Message Number:  #{message_number}"
     if message_number.nil?
       render json: { error: "Failed to find application with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
       return

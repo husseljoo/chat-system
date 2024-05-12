@@ -3,6 +3,7 @@ require "securerandom"
 
 class ApplicationsController < ApplicationController
   before_action :set_application, only: %i[ show update destroy ]
+  SEQUENCE_GENERATOR_URL = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
 
   # GET /applications
   def index
@@ -26,11 +27,8 @@ class ApplicationsController < ApplicationController
       return
     end
 
-    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
-    url = "#{base_url}/chat?app_token=#{token}"
-    puts "URL:  #{url}"
+    url = "#{SEQUENCE_GENERATOR_URL}/chat?app_token=#{token}"
     res = set_token_redis(url)
-    puts "Res:  #{res}"
     if res.nil? || res == false
       render json: { error: "Failed to set token: #{token}" }, status: :unprocessable_entity
       return
