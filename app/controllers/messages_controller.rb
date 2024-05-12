@@ -26,9 +26,9 @@ class MessagesController < ApplicationController
     render json: @message
   end
 
-  # POST /messages
+  # POST /applications/{application_token}/chats/{chat_number}/messages
   def create
-    token = params[:token]
+    token = params[:application_token]
     chat_number = params[:chat_number]
     body = params[:body]
     puts "body:  #{body}"
