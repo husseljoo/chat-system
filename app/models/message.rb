@@ -1,13 +1,12 @@
 class Message < ApplicationRecord
   include Searchable
   belongs_to :chat #, counter_cache: true
-  def self.search(query, chat_id)
-    query = "*#{query}*"
+  def self.search_body(query, chat_id)
     search_definition = {
       query: {
         bool: {
           must: [
-            { match: { body: { query: query, fuzziness: "auto" } } },
+            { match: { body: { query: query } } },
             { match: { chat_id: chat_id } },
           ],
         },
