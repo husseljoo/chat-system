@@ -10,7 +10,6 @@ class MessagesController < ApplicationController
 
   # GET /applications/{application_token}/chats/{chat_number}/messages
   def index
-    puts "PARAMS:  #{params}, GANGGGG"
     @chat = Chat.find_by(token: params[:application_token], number: params[:chat_number])
 
     if @chat.nil?
@@ -100,7 +99,7 @@ class MessagesController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_message
-    @message = Message.find(params[:id])
+    @message = Message.find_by(number: params[:number], chat_id: Chat.find_by(token: params[:application_token], number: params[:chat_number])&.id)
   end
 
   # Only allow a list of trusted parameters through.
