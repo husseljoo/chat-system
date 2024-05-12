@@ -4,10 +4,15 @@ class ChatsController < ApplicationController
   before_action :set_chat, only: %i[ show update destroy ]
 
   # GET /chats
-  def index
+  def all_chats
     @chats = Chat.all
-
     render json: @chats
+  end
+
+  # GET /applications/{application_token}/chats
+  def index
+    @chats = Chat.where(token: params[:application_token])
+    render json: @chats.as_json(only: [:number, :token])
   end
 
   # GET /chats/1
@@ -31,12 +36,6 @@ class ChatsController < ApplicationController
 
     CreateChatJob.perform_later(token, chat_number)
     render json: { chat_number: chat_number }, status: :created
-  end
-
-  def list_by_token
-    @chats = Chat.where(token: params[:application_token])
-    render json: @chats.as_json(only: [:number, :token])
-    # render json: @chats
   end
 
   # PATCH/PUT /chats/1

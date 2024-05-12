@@ -1,12 +1,11 @@
 Rails.application.routes.draw do
   resources :applications, param: :token do
-    get "/chats", to: "chats#list_by_token"
-    # resources :chats, only: [:index]
-    # resources :chats, only: [:list_by_token]
+    resources :chats, only: [:index]
   end
   resources :chats
   resources :messages
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  get "all-chats", action: :all_chats, controller: :chats
   get "api/search/", action: :search, controller: :messages
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
