@@ -20,9 +20,10 @@ class ChatsController < ApplicationController
     render json: @chat.as_json(only: [:token, :number, :messages_count])
   end
 
-  # POST /chats
+  # POST /applications/{application_token}/chats
   def create
-    token = params[:token]
+    # token = params[:token]
+    token = params[:application_token]
     puts "TOKEN:  #{token}"
     base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
     url = "#{base_url}/chat?app_token=#{token}"
