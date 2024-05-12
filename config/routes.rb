@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :applications, param: :token do
-    resources :chats, only: [:index], param: :number do
+    resources :chats, only: [:index, :show], param: :number do
       resources :messages, only: [:index]
     end
   end

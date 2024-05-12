@@ -13,7 +13,7 @@ class ApplicationsController < ApplicationController
 
   # GET /applications/:token
   def show
-    render json: @application.as_json(except: [:created_at, :updated_at])
+    render json: @application.as_json(only: [:token, :name, :chats_count])
     # render json: @application
   end
 

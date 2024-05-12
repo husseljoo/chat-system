@@ -15,9 +15,9 @@ class ChatsController < ApplicationController
     render json: @chats.as_json(only: [:number, :token])
   end
 
-  # GET /chats/1
+  # GET /applications/{application_token}/chats/{number}
   def show
-    render json: @chat
+    render json: @chats.as_json(only: [:token, :number, :messages_count])
   end
 
   # POST /chats
@@ -56,7 +56,7 @@ class ChatsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_chat
-    @chat = Chat.find(params[:id])
+    @chat = Chat.find_by(token: params[:application_token], number: params[:number])
   end
 
   # Only allow a list of trusted parameters through.
