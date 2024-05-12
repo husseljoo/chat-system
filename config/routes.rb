@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
-  resources :messages
+  resources :applications, param: :token
   resources :chats
-  resources :applications
+  resources :messages
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get "api/search/", action: :search, controller: :messages
 
