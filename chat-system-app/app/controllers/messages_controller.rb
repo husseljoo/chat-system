@@ -42,7 +42,7 @@ class MessagesController < ApplicationController
     url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
     message_number = fetch_message_number(url, "POST")
     if message_number.nil?
-      render json: { error: "Failed to find application with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
+      render json: { error: "Failed to find application with token '#{token}' and chat_number '#{chat_number}'" }, status: :not_found
       return
     end
 
@@ -66,7 +66,7 @@ class MessagesController < ApplicationController
     url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
     res = chat_exists(url)
     unless res
-      render json: { error: "Failed to find chat with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
+      render json: { error: "Failed to find chat with token '#{token}' and chat_number '#{chat_number}'" }, status: :not_found
       return
     end
     UpdateMessageJob.perform_later(token, chat_number, number, body)

@@ -27,7 +27,7 @@ class ChatsController < ApplicationController
     url = "#{SEQUENCE_GENERATOR_URL}/chat?app_token=#{token}"
     chat_number = fetch_chat_number(url, "POST")
     if chat_number.nil?
-      render json: { error: "Failed to find application with token '#{token}'" }, status: :unprocessable_entity
+      render json: { error: "Failed to find application with token '#{token}'" }, status: :not_found
       return
     end
 
