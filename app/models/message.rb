@@ -11,6 +11,7 @@ class Message < ApplicationRecord
           ],
         },
       },
+      _source: ["body", "number"],
     }
     __elasticsearch__.search(search_definition)
   end
