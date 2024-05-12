@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
-  resources :applications, param: :token do
+  resources :applications, only: [:show, :create, :update], param: :token do
     resources :chats, only: [:index, :show, :create], param: :number do
       resources :messages, only: [:index, :show, :create, :update], param: :number
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  get "all-applications", action: :index, controller: :applications
   get "all-chats", action: :all_chats, controller: :chats
   get "all-messages", action: :all_messages, controller: :messages
   get "api/search/", action: :search, controller: :messages
