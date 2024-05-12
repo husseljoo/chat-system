@@ -58,10 +58,17 @@ class MessagesController < ApplicationController
       return
     end
 
-    #check in redis first
     token = params[:application_token]
     chat_number = params[:chat_number]
     number = params[:number]
+
+    #check in redis first
+    url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
+    res = chat_exists(url)
+    unless res
+      render json: { error: "Failed to find chat with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
+      return
+    end
     UpdateMessageJob.perform_later(token, chat_number, number, body)
     render json: { message: "Update operation in progress. Message will be updated shortly." }, status: :accepted
   end
@@ -108,6 +115,27 @@ class MessagesController < ApplicationController
     params.fetch(:message, {})
   end
 
+  def chat_exists(url)
+    uri = URI(url)
+    request = Net::HTTP::Get.new(uri)
+
+    begin
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
+
+      if response.is_a?(Net::HTTPSuccess)
+        return true
+      else
+        puts "Error: #{response.code} - #{response.message}"
+        return false
+      end
+    rescue StandardError => e
+      puts "Error: #{e.message}"
+      return false
+    end
+  end
+
   def fetch_message_number(url, method)
     uri = URI(url)
 
@@ -130,7 +158,7 @@ class MessagesController < ApplicationController
         return body["message_number"]
       else
         puts "Error: #{response.code} - #{response.message}"
-        return nil
+        return false
       end
     rescue StandardError => e
       puts "Error: #{e.message}"
