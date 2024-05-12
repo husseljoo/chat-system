@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
-  resources :applications, param: :token
+  resources :applications, param: :token do
+    get "/chats", to: "chats#list_by_token"
+    # resources :chats, only: [:index]
+    # resources :chats, only: [:list_by_token]
+  end
   resources :chats
   resources :messages
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

@@ -33,6 +33,12 @@ class ChatsController < ApplicationController
     render json: { chat_number: chat_number }, status: :created
   end
 
+  def list_by_token
+    @chats = Chat.where(token: params[:application_token])
+    render json: @chats.as_json(only: [:number, :token])
+    # render json: @chats
+  end
+
   # PATCH/PUT /chats/1
   def update
     if @chat.update(chat_params)
