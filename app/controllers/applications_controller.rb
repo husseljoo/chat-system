@@ -49,6 +49,11 @@ class ApplicationsController < ApplicationController
   # PATCH/PUT /applications/:token
   # Check in redis first in order to not clutter DB
   def update
+    name = params[:name]
+    if name.nil? || name.empty?
+      render json: { error: "No name given as paramater!" }, status: :unprocessable_entity
+      return
+    end
     if @application.update(application_params)
       # render json: @application
       render json: @application.as_json(except: [:created_at, :updated_at])
