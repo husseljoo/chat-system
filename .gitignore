@@ -5,29 +5,29 @@
 #   git config --global core.excludesfile '~/.gitignore_global'
 
 # Ignore bundler config.
-/.bundle
+chat-system-app/.bundle
 
 # Ignore all environment files (except templates).
-/.env*
-!/.env*.erb
+chat-system-app/.env*
+!chat-system-app/.env*.erb
 
 # Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
-!/log/.keep
-!/tmp/.keep
+chat-system-app/log/*
+chat-system-app/tmp/*
+!chat-system-app/log/.keep
+!chat-system-app/tmp/.keep
 
 # Ignore pidfiles, but keep the directory.
-/tmp/pids/*
-!/tmp/pids/
-!/tmp/pids/.keep
+chat-system-app/tmp/pids/*
+!chat-system-app/tmp/pids/
+!chat-system-app/tmp/pids/.keep
 
 # Ignore storage (uploaded files in development and any SQLite databases).
-/storage/*
-!/storage/.keep
-/tmp/storage/*
-!/tmp/storage/
-!/tmp/storage/.keep
+chat-system-app/storage/*
+!chat-system-app/storage/.keep
+chat-system-app/tmp/storage/*
+!chat-system-app/tmp/storage/
+!chat-system-app/tmp/storage/.keep
 
 # Ignore master key for decrypting credentials and more.
-/config/master.key
+chat-system-app/config/master.key
