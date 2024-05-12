@@ -48,9 +48,14 @@ class MessagesController < ApplicationController
     render json: { message_number: message_number }, status: :created
   end
 
-  # PATCH/PUT /messages/1
+  # PATCH/PUT /applications/{application_token}/chats/{chat_number}/messages/{number}
   def update
-    if @message.update(message_params)
+    body = params[:body]
+    if body.nil? || body.empty?
+      render json: { error: "You need to pass a non-empty 'body' paramater to update message accordingly." }, status: :unprocessable_entity
+      return
+    end
+    if @message.update(body: params[:body])
       render json: @message
     else
       render json: @message.errors, status: :unprocessable_entity
