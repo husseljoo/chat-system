@@ -10,6 +10,13 @@ class MessagesController < ApplicationController
 
   # GET /applications/{application_token}/chats/{chat_number}/messages
   def index
+    query = params[:query]
+    if query.present?
+      puts "query:  #{query}, inside message_controller!"
+      search_messages_by_query
+      return
+    end
+
     @chat = Chat.find_by(token: params[:application_token], number: params[:chat_number])
 
     if @chat.nil?
@@ -62,13 +69,10 @@ class MessagesController < ApplicationController
     end
   end
 
-  def search
-    token = params[:token]
-    puts "TOKEN:  #{token}"
+  def search_messages_by_query
+    token = params[:application_token]
     chat_number = params[:chat_number]
-    puts "CHAT NUMBER:  #{chat_number}"
     query = params[:query]
-    puts "QUERY:  #{query}"
     if token.blank? || chat_number.blank? || query.blank?
       render json: { error: "Missing parameters. Please provide token, chat_number, and query." }, status: :unprocessable_entity
       return
@@ -78,15 +82,11 @@ class MessagesController < ApplicationController
       render json: { error: "Failed to find chat with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
       return
     end
-    puts chat
     puts "CHAT.ID:  #{chat.id}"
-
-    # @messages = Message.search(query, chat.id)
-    # render json: @messages
 
     begin
       messages = Message.search_body(query, chat.id)
-      messages = Message.all.map { |message| message.slice(:body, :number) }
+      # messages = Message.all.map { |message| message.slice(:body, :number) }
       render json: messages
     rescue Elasticsearch::Transport::Transport::Errors::BadRequest => e
       render json: { error: "Elasticsearch error: #{e.message}" }, status: :unprocessable_entity
