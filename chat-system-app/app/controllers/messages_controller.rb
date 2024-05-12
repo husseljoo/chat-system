@@ -57,11 +57,13 @@ class MessagesController < ApplicationController
       render json: { error: "You need to pass a non-empty 'body' paramater to update message accordingly." }, status: :unprocessable_entity
       return
     end
-    if @message.update(body: params[:body])
-      render json: @message
-    else
-      render json: @message.errors, status: :unprocessable_entity
-    end
+
+    #check in redis first
+    token = params[:application_token]
+    chat_number = params[:chat_number]
+    number = params[:number]
+    UpdateMessageJob.perform_later(token, chat_number, number, body)
+    render json: { message: "Update operation in progress. Message will be updated shortly." }, status: :accepted
   end
 
   def search_messages_by_query
