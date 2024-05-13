@@ -48,7 +48,8 @@ services:
     volumes:
       - redis_data:/data
   sidekiq:
-    image: rails-app:latest
+    build:
+      context: ./chat-system-app
     container_name: sidekiq
     command: bundle exec sidekiq
     depends_on:
