@@ -5,13 +5,21 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"github.com/jrallison/go-workers"
+	"golang.org/x/exp/rand"
 )
 
 const (
 	SEQUENCE_GENERATOR_URL = "http://localhost:8081"
+	QUEUE_CHATS            = "queue_chats"
+	SIDEKIQ_REDIS          = "localhost:6379"
+	SIDEKIQ_REDIS_DB       = "5"
+	SIDEKIQ_REDIS_POOL     = "10"
 )
 
 var dbConfig = mysql.Config{
@@ -20,6 +28,25 @@ var dbConfig = mysql.Config{
 	Net:    "tcp",
 	Addr:   "localhost:3311",
 	DBName: "chat_system_dev",
+}
+
+func InitSidekiq() {
+	workers.Configure(map[string]string{
+		// location of redis instance
+		"server": SIDEKIQ_REDIS,
+		// instance of the database
+		"database": SIDEKIQ_REDIS_DB,
+		// number of connections to keep open with redis
+		"pool": SIDEKIQ_REDIS_POOL,
+		// unique process id for this instance of workers (for proper recovery of inprogress jobs on crash)
+		"process": strconv.Itoa(rand.Intn(10000)),
+	})
+}
+
+func AddJob(queue string, at time.Time, args ...interface{}) string {
+	ts := float64(at.UTC().Unix())
+	jid, _ := workers.EnqueueWithOptions(queue, "Add", args, workers.EnqueueOptions{Retry: true, RetryCount: 4, At: ts})
+	return jid
 }
 
 // applications/:token/chats/
@@ -35,6 +62,9 @@ func createChat(c *gin.Context) {
 	jsonResponse := map[string]interface{}{
 		"chat_number": chatNumber,
 	}
+
+	jobId := AddJob(QUEUE_CHATS, time.Now(), token, chatNumber)
+	fmt.Printf("Chat creation for application %s added to queue with job_id: %s\n", token, jobId)
 
 	c.IndentedJSON(http.StatusCreated, jsonResponse)
 }
@@ -88,6 +118,7 @@ func setTokenRedis(url string, field string) (float64, error) {
 }
 
 func main() {
+	InitSidekiq()
 	router := gin.Default()
 	router.POST("/applications/:token/chats", createChat)
 	router.POST("/applications/:token/chats/:chat_number/messages", createMessage)
