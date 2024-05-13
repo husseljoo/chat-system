@@ -119,5 +119,5 @@ func main() {
 	router.POST("/applications/:token/chats", createChat)
 	router.POST("/applications/:token/chats/:chat_number/messages", createMessage)
 
-	router.Run("localhost:8888")
+	router.Run("0.0.0.0:8888")
 }
