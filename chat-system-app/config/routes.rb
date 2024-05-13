@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
   resources :applications, only: [:show, :create, :update], param: :token do
     resources :chats, only: [:index, :show, :create], param: :number do
       resources :messages, only: [:index, :show, :create, :update], param: :number

@@ -48,3 +48,9 @@ end
 gem "sidekiq", "~> 7.2"
 
 gem "elasticsearch-model", "~> 7.2"
+
+gem "rswag", "~> 2.13"
+
+gem "rswag-specs", "~> 2.13"
+
+gem "rspec-rails", "~> 6.1"
