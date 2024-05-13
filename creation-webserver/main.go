@@ -66,6 +66,11 @@ func createChat(c *gin.Context) {
 func createMessage(c *gin.Context) {
 	token := c.Param("token")
 	chatNumber := c.Param("chat_number")
+	body := c.Query("body")
+	if body == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing message body"})
+		return
+	}
 
 	url := fmt.Sprintf("%s/message?app_token=%s&chat_number=%s", SEQUENCE_GENERATOR_URL, token, chatNumber)
 	messageNumber, err := setTokenRedis(url, "message_number")
@@ -77,7 +82,7 @@ func createMessage(c *gin.Context) {
 		"message_number": messageNumber,
 	}
 
-	jobId := AddJob(QUEUE_MESSAGES, time.Now(), token, chatNumber, messageNumber)
+	jobId := AddJob(QUEUE_MESSAGES, time.Now(), token, chatNumber, messageNumber, body)
 	fmt.Printf("Message creation for chat number %s of application %s added to queue with job_id: %s\n", chatNumber, token, jobId)
 
 	c.IndentedJSON(http.StatusCreated, jsonResponse)

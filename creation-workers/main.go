@@ -71,6 +71,7 @@ func CreateMessageJob(message *workers.Msg) {
 	token := args[0]
 	chatNumber := args[1]
 	messageNumber := args[2]
+	body := args[3]
 
 	db, err := sql.Open("mysql", dbConfig.FormatDSN())
 	if err != nil {
@@ -78,12 +79,12 @@ func CreateMessageJob(message *workers.Msg) {
 	}
 	defer db.Close()
 	query := `
-        INSERT INTO messages (chat_id, number, created_at, updated_at)
-        SELECT c.id, ?, NOW(), NOW()
+        INSERT INTO messages (chat_id, number, body, created_at, updated_at)
+        SELECT c.id, ?, ?, NOW(), NOW()
         FROM chats c
         WHERE c.token = ? AND c.number = ?;
         `
-	_, err = db.Exec(query, messageNumber, token, chatNumber)
+	_, err = db.Exec(query, messageNumber, body, token, chatNumber)
 	if err != nil {
 		log.Fatal(err)
 	}
