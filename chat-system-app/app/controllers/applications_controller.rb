@@ -52,12 +52,16 @@ class ApplicationsController < ApplicationController
       render json: { error: "No name given as paramater!" }, status: :unprocessable_entity
       return
     end
-    if @application.update(application_params)
-      # render json: @application
-      render json: @application.as_json(except: [:created_at, :updated_at])
-    else
-      render json: @application.errors, status: :unprocessable_entity
+    token = params[:token]
+    #check in redis first
+    url = "#{SEQUENCE_GENERATOR_URL}/chat?app_token=#{token}"
+    res = application_exists(url)
+    unless res
+      render json: { error: "Failed to find application with token '#{token}'" }, status: :not_found
+      return
     end
+    UpdateApplicationJob.perform_later(token, name)
+    render json: { message: "Update operation in progress. Application name will be updated shortly." }, status: :accepted
   end
 
   # DELETE /applications/:token
@@ -83,6 +87,27 @@ class ApplicationsController < ApplicationController
 
   def generate_token(length = 12)
     SecureRandom.alphanumeric(length)
+  end
+
+  def application_exists(url)
+    uri = URI(url)
+    request = Net::HTTP::Get.new(uri)
+
+    begin
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
+
+      if response.is_a?(Net::HTTPSuccess)
+        return true
+      else
+        puts "Error: #{response.code} - #{response.message}"
+        return false
+      end
+    rescue StandardError => e
+      puts "Error: #{e.message}"
+      return false
+    end
   end
 
   def set_token_redis(url)
