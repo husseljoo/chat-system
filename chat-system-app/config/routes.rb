@@ -10,7 +10,6 @@ Rails.application.routes.draw do
   get "all-applications", action: :index, controller: :applications
   get "all-chats", action: :all_chats, controller: :chats
   get "all-messages", action: :all_messages, controller: :messages
-  get "api/search/", action: :search, controller: :messages
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
