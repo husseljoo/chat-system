@@ -19,6 +19,8 @@ var (
 	SIDEKIQ_REDIS          = env.GetDefault("SIDEKIQ_REDIS", "localhost:6379")
 	SIDEKIQ_REDIS_DB       = env.GetDefault("SIDEKIQ_REDIS_DB", "5")
 	SIDEKIQ_REDIS_POOL     = env.GetDefault("SIDEKIQ_REDIS_POOL", "10")
+	CHAT_CONCURRENCY       = env.GetIntDefault("CHAT_CONCURRENCY", 10)
+	MESSAGE_CONCURRENCY    = env.GetIntDefault("MESSAGE_CONCURRENCY", 10)
 )
 
 var dbConfig = mysql.Config{
@@ -92,8 +94,8 @@ func CreateMessageJob(message *workers.Msg) {
 
 func main() {
 	InitSidekiq()
-	workers.Process(QUEUE_CHATS, CreateChatJob, 1)
-	workers.Process(QUEUE_MESSAGES, CreateMessageJob, 1)
+	workers.Process(QUEUE_CHATS, CreateChatJob, CHAT_CONCURRENCY)
+	workers.Process(QUEUE_MESSAGES, CreateMessageJob, MESSAGE_CONCURRENCY)
 
 	workers.Run()
 }
