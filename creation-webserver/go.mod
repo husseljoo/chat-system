@@ -3,14 +3,13 @@ module creation-webserver
 go 1.22.3
 
 require (
+	github.com/caitlinelfring/go-env-default v1.1.0
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-sql-driver/mysql v1.8.1
 	github.com/jrallison/go-workers v0.0.0-20180112190529-dbf81d0b75bb
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect

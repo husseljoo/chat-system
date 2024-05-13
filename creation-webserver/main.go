@@ -8,28 +8,20 @@ import (
 	"strconv"
 	"time"
 
+	env "github.com/caitlinelfring/go-env-default"
 	"github.com/gin-gonic/gin"
-	"github.com/go-sql-driver/mysql"
 	"github.com/jrallison/go-workers"
 	"golang.org/x/exp/rand"
 )
 
-const (
-	SEQUENCE_GENERATOR_URL = "http://localhost:8081"
-	QUEUE_CHATS            = "queue_chats"
-	QUEUE_MESSAGES         = "queue_messages"
-	SIDEKIQ_REDIS          = "localhost:6379"
-	SIDEKIQ_REDIS_DB       = "5"
-	SIDEKIQ_REDIS_POOL     = "10"
+var (
+	SEQUENCE_GENERATOR_URL = env.GetDefault("SEQUENCE_GENERATOR_URL", "http://localhost:8081")
+	QUEUE_CHATS            = env.GetDefault("QUEUE_CHATS", "queue_chats")
+	QUEUE_MESSAGES         = env.GetDefault("QUEUE_MESSAGES", "queue_messages")
+	SIDEKIQ_REDIS          = env.GetDefault("SIDEKIQ_REDIS", "localhost:6379")
+	SIDEKIQ_REDIS_DB       = env.GetDefault("SIDEKIQ_REDIS_DB", "5")
+	SIDEKIQ_REDIS_POOL     = env.GetDefault("SIDEKIQ_REDIS_POOL", "10")
 )
-
-var dbConfig = mysql.Config{
-	User:   "root",
-	Passwd: "root",
-	Net:    "tcp",
-	Addr:   "localhost:3311",
-	DBName: "chat_system_dev",
-}
 
 func InitSidekiq() {
 	workers.Configure(map[string]string{
@@ -110,12 +102,12 @@ func setTokenRedis(url string, field string) (float64, error) {
 
 	num, ok := response[field]
 	if !ok {
-		return 0, fmt.Errorf("chat_number not found in response")
+		return 0, fmt.Errorf("%s not found in response", field)
 	}
 
 	number, ok := num.(float64)
 	if !ok {
-		return 0, fmt.Errorf("chat_number conversion error to float64.")
+		return 0, fmt.Errorf("%s conversion error to float64.", field)
 	}
 
 	return number, nil
