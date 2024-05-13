@@ -17,6 +17,7 @@ import (
 const (
 	SEQUENCE_GENERATOR_URL = "http://localhost:8081"
 	QUEUE_CHATS            = "queue_chats"
+	QUEUE_MESSAGES         = "queue_messages"
 	SIDEKIQ_REDIS          = "localhost:6379"
 	SIDEKIQ_REDIS_DB       = "5"
 	SIDEKIQ_REDIS_POOL     = "10"
@@ -83,6 +84,9 @@ func createMessage(c *gin.Context) {
 	jsonResponse := map[string]interface{}{
 		"message_number": messageNumber,
 	}
+
+	jobId := AddJob(QUEUE_MESSAGES, time.Now(), token, chatNumber, messageNumber)
+	fmt.Printf("Message creation for chat number %s of application %s added to queue with job_id: %s\n", chatNumber, token, jobId)
 
 	c.IndentedJSON(http.StatusCreated, jsonResponse)
 }
