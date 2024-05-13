@@ -113,6 +113,16 @@ services:
       REDIS_ADDR: "redis:6379"
     ports:
       - "8081:8081"
+  reverse-proxy:
+    image: nginx:1.25.3
+    container_name: reverse-proxy
+    ports:
+      - "8000:80"
+    volumes:
+      - ./reverse-proxy:/etc/nginx
+    depends_on:
+      db:
+        condition: service_healthy
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
     container_name: elasticsearch-chat-system
