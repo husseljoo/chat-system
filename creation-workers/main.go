@@ -24,8 +24,8 @@ var (
 )
 
 var dbConfig = mysql.Config{
-	User:   env.GetDefault("DB_USER", "root"),
-	Passwd: env.GetDefault("DB_PASS", "root"),
+	User:   env.GetDefault("DB_USERNAME", "root"),
+	Passwd: env.GetDefault("DB_PASSWORD", "root"),
 	Net:    "tcp",
 	Addr:   fmt.Sprintf("%s:%s", env.GetDefault("DB_HOST", "localhost"), env.GetDefault("DB_PORT", "3311")),
 	DBName: env.GetDefault("DB_NAME", "chat_system_dev"),
