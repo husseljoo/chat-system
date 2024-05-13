@@ -58,7 +58,34 @@ func CreateChatJob(message *workers.Msg) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Job %s: Created chat number %s for application %s", message.Jid(), chatNumber, token)
+	fmt.Printf("Job %s: Created chat number %s for application %s\n", message.Jid(), chatNumber, token)
+
+	return
+}
+
+func CreateMessageJob(message *workers.Msg) {
+	args, _ := message.Args().Array()
+	fmt.Printf("CreateChatJob: Processing job %s, args: %v\n", message.Jid(), args)
+	token := args[0]
+	chatNumber := args[1]
+	messageNumber := args[2]
+
+	db, err := sql.Open("mysql", dbConfig.FormatDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	query := `
+        INSERT INTO messages (chat_id, number, created_at, updated_at)
+        SELECT c.id, ?, NOW(), NOW()
+        FROM chats c
+        WHERE c.token = ? AND c.number = ?;
+        `
+	_, err = db.Exec(query, messageNumber, token, chatNumber)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Job %s: Created message number %s in chat number %s of application %s\n", message.Jid(), messageNumber, chatNumber, token)
 
 	return
 }
@@ -66,7 +93,7 @@ func CreateChatJob(message *workers.Msg) {
 func main() {
 	InitSidekiq()
 	workers.Process(QUEUE_CHATS, CreateChatJob, 1)
-	//workers.Process(QUEUE_MESSAGES, CreateMessageJob, 1)
+	workers.Process(QUEUE_MESSAGES, CreateMessageJob, 1)
 
 	workers.Run()
 }
