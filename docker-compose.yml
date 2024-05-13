@@ -1,0 +1,85 @@
+services:
+  db:
+    image: mysql:8.4.0
+    container_name: database-chat-system
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "some_challenge"
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3311:3306"
+    volumes:
+      - chat_system_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+  rails-app:
+    build:
+      context: ./chat-system-app
+    image: rails-app:latest
+    container_name: rails-app
+    command: >
+      bash -c "./bin/rails db:create && ./bin/rails db:migrate && ./bin/rails server -b 0.0.0.0"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "mysql2://root:root@db/"
+      RAILS_ENV: development
+      SEQUENCE_GENERATOR_URL: "http://sequence-generator:8081"
+      REDIS_URL: "redis://redis:6379/2"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+  redis:
+    image: redis:7
+    container_name: redis-chat-system
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - redis_data:/data
+  sidekiq:
+    image: rails-app:latest
+    container_name: sidekiq
+    command: bundle exec sidekiq
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "mysql2://root:root@db/"
+      REDIS_URL: "redis://redis:6379/2"
+      SEQUENCE_GENERATOR_URL: "http://sequence-generator:8081"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      RAILS_ENV: development
+  sequence-generator:
+    build:
+      context: ./sequence-generator
+    container_name: sequence-generator
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_ADDR: "redis:6379"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: elasticsearch-chat-system
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - cluster.name=elasticsearch-rails
+      - cluster.routing.allocation.disk.threshold_enabled=false
+volumes:
+  chat_system_mysql:
+  redis_data:

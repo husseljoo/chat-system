@@ -2,18 +2,10 @@ require "net/http"
 
 class CreateChatJob < ApplicationJob
   queue_as :default
+  SEQUENCE_GENERATOR_URL = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
 
   def perform(token, chat_number)
-    # application_id = Application.find_by(token: token)&.id
-    # puts "App Id:  #{application_id}"
-    # puts "Chat Number in ActiveJob:  #{chat_number}"
-
-    puts "INSIDE CreateChatJob, TOKEN:  #{token}, CHAT NUMBER:  #{chat_number}"
-
-    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
-    url = "#{base_url}/message?app_token=#{token}&chat_number=#{chat_number}"
-
-    puts "URL:  #{url}"
+    url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
     res = set_token_redis(url)
     chat = Chat.new(token: token, number: chat_number)
     if chat.save

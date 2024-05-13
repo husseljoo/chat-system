@@ -2,6 +2,7 @@ require "net/http"
 
 class ChatsController < ApplicationController
   before_action :set_chat, only: %i[ show update destroy ]
+  SEQUENCE_GENERATOR_URL = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
 
   # GET /chats
   def all_chats
@@ -22,16 +23,11 @@ class ChatsController < ApplicationController
 
   # POST /applications/{application_token}/chats
   def create
-    # token = params[:token]
     token = params[:application_token]
-    puts "TOKEN:  #{token}"
-    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
-    url = "#{base_url}/chat?app_token=#{token}"
-    puts "URL:  #{url}"
+    url = "#{SEQUENCE_GENERATOR_URL}/chat?app_token=#{token}"
     chat_number = fetch_chat_number(url, "POST")
-    puts "Chat Number:  #{chat_number}"
     if chat_number.nil?
-      render json: { error: "Failed to find application with token '#{token}'" }, status: :unprocessable_entity
+      render json: { error: "Failed to find application with token '#{token}'" }, status: :not_found
       return
     end
 

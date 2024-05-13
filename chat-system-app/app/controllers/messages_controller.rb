@@ -2,6 +2,7 @@ require "net/http"
 
 class MessagesController < ApplicationController
   before_action :set_message, only: %i[ show update destroy ]
+  SEQUENCE_GENERATOR_URL = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
 
   def all_messages
     @messages = Message.all
@@ -12,7 +13,6 @@ class MessagesController < ApplicationController
   def index
     query = params[:query]
     if query.present?
-      puts "query:  #{query}, inside message_controller!"
       search_messages_by_query
       return
     end
@@ -38,16 +38,11 @@ class MessagesController < ApplicationController
     token = params[:application_token]
     chat_number = params[:chat_number]
     body = params[:body]
-    puts "body:  #{body}"
-    puts "TOKEN:  #{token}, CHAT NUMBER:  #{chat_number}"
 
-    base_url = ENV["SEQUENCE_GENERATOR_URL"] || "http://localhost:8081"
-    url = "#{base_url}/message?app_token=#{token}&chat_number=#{chat_number}"
-    puts "Message URL:  #{url}"
+    url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
     message_number = fetch_message_number(url, "POST")
-    puts "Message Number:  #{message_number}"
     if message_number.nil?
-      render json: { error: "Failed to find application with token '#{token}' and chat_number '#{chat_number}'" }, status: :unprocessable_entity
+      render json: { error: "Failed to find application with token '#{token}' and chat_number '#{chat_number}'" }, status: :not_found
       return
     end
 
@@ -62,11 +57,20 @@ class MessagesController < ApplicationController
       render json: { error: "You need to pass a non-empty 'body' paramater to update message accordingly." }, status: :unprocessable_entity
       return
     end
-    if @message.update(body: params[:body])
-      render json: @message
-    else
-      render json: @message.errors, status: :unprocessable_entity
+
+    token = params[:application_token]
+    chat_number = params[:chat_number]
+    number = params[:number]
+
+    #check in redis first
+    url = "#{SEQUENCE_GENERATOR_URL}/message?app_token=#{token}&chat_number=#{chat_number}"
+    res = chat_exists(url)
+    unless res
+      render json: { error: "Failed to find chat with token '#{token}' and chat_number '#{chat_number}'" }, status: :not_found
+      return
     end
+    UpdateMessageJob.perform_later(token, chat_number, number, body)
+    render json: { message: "Update operation in progress. Message will be updated shortly." }, status: :accepted
   end
 
   def search_messages_by_query
@@ -111,6 +115,27 @@ class MessagesController < ApplicationController
     params.fetch(:message, {})
   end
 
+  def chat_exists(url)
+    uri = URI(url)
+    request = Net::HTTP::Get.new(uri)
+
+    begin
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
+
+      if response.is_a?(Net::HTTPSuccess)
+        return true
+      else
+        puts "Error: #{response.code} - #{response.message}"
+        return false
+      end
+    rescue StandardError => e
+      puts "Error: #{e.message}"
+      return false
+    end
+  end
+
   def fetch_message_number(url, method)
     uri = URI(url)
 
@@ -133,7 +158,7 @@ class MessagesController < ApplicationController
         return body["message_number"]
       else
         puts "Error: #{response.code} - #{response.message}"
-        return nil
+        return false
       end
     rescue StandardError => e
       puts "Error: #{e.message}"
