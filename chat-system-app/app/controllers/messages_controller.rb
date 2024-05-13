@@ -30,7 +30,7 @@ class MessagesController < ApplicationController
 
   # GET /messages/1
   def show
-    render json: @message
+    render json: @message.as_json(only: [:number, :body])
   end
 
   # POST /applications/{application_token}/chats/{chat_number}/messages
