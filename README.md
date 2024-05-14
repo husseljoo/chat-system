@@ -14,7 +14,7 @@
   - used by web servers to omit invalid requests (i.e non-existing token) to avoid database contention
 - **Elasticsearch**: Supports full-text search capabilities for message bodies (partial body matching).
 
-##### Design decisions:
+#### Design decisions:
 
 - application creation will wait until persisted to DB (could be made asynchronous), but decided to guarantee persistence
 - service generator and workers use the same Redis service however for larger scale or stricter isolation separate Redis instances could be deployed for each service
