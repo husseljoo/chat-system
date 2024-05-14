@@ -20,7 +20,6 @@ services:
   rails-app:
     build:
       context: ./chat-system-app
-    image: rails-app:latest
     container_name: rails-app
     command: >
       bash -c "./bin/rails db:create && ./bin/rails db:migrate && ./bin/rails server -b 0.0.0.0"
