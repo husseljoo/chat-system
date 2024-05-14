@@ -1,0 +1,131 @@
+services:
+  db:
+    image: mysql:8.4.0
+    container_name: database-chat-system
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "some_challenge"
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3311:3306"
+    volumes:
+      - chat_system_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+  rails-app:
+    image: rails-app:latest
+    container_name: rails-app
+    command: >
+      bash -c "./bin/rails db:create && ./bin/rails db:migrate && ./bin/rails server -b 0.0.0.0"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "mysql2://root:root@db/"
+      RAILS_ENV: development
+      SEQUENCE_GENERATOR_URL: "http://sequence-generator:8081"
+      REDIS_URL: "redis://redis:6379/2"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+  redis:
+    image: redis:7
+    container_name: redis-chat-system
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - redis_data:/data
+  sidekiq:
+    image: rails-app:latest
+    container_name: sidekiq
+    command: bundle exec sidekiq
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "mysql2://root:root@db/"
+      REDIS_URL: "redis://redis:6379/2"
+      SEQUENCE_GENERATOR_URL: "http://sequence-generator:8081"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      RAILS_ENV: development
+  creation-webserver:
+    image: creation-webserver:latest
+    container_name: creation-webserver
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      SEQUENCE_GENERATOR_URL: "http://sequence-generator:8081"
+      QUEUE_CHATS: "queue_chats"
+      QUEUE_MESSAGES: "queue_messages"
+      SIDEKIQ_REDIS: "redis:6379"
+      SIDEKIQ_REDIS_DB: "5"
+      SIDEKIQ_REDIS_POOL: "10"
+    ports:
+      - "8888:8888"
+  creation-workers:
+    image: creation-workers:latest
+    container_name: creation-workers
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_USERNAME: "root"
+      DB_PASSWORD: "root"
+      DB_HOST: "db"
+      DB_PORT: 3306
+      DB_NAME: "chat_system_dev"
+      SEQUENCE_GENERATOR_URL: "http://sequence-generator:8081"
+      QUEUE_CHATS: "queue_chats"
+      QUEUE_MESSAGES: "queue_messages"
+      SIDEKIQ_REDIS: "redis:6379"
+      SIDEKIQ_REDIS_DB: "5"
+      SIDEKIQ_REDIS_POOL: "10"
+      CHAT_CONCURRENCY: 10
+      MESSAGE_CONCURRENCY: 10
+  sequence-generator:
+    image: sequence-generator:latest
+    container_name: sequence-generator
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_ADDR: "redis:6379"
+    ports:
+      - "8081:8081"
+  reverse-proxy:
+    image: nginx:1.25.3
+    container_name: reverse-proxy
+    ports:
+      - "8000:80"
+    volumes:
+      - ./reverse-proxy:/etc/nginx
+    depends_on:
+      db:
+        condition: service_healthy
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    container_name: elasticsearch-chat-system
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - cluster.name=elasticsearch-rails
+      - cluster.routing.allocation.disk.threshold_enabled=false
+volumes:
+  chat_system_mysql:
+  redis_data:
