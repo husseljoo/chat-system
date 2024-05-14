@@ -8,7 +8,7 @@ If you face errors due to building the images in the compose file, you may run t
 `./build_and_run.sh`
 
 To generate data you can this command after all containers are running:
-`docker run --rm --network host -v ./generate_data.py:/script -w /script python:3-slim python generate_data.py`
+`docker run --rm --network host -v ./scripts:/scripts -w /scripts/generate_data.py python:3-slim -c "pip install -r requirements.txt && python generate_data.py"`
 
 ### Api Documentation
 The API documentation is available at http://localhost:8000/api-docs/
