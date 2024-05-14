@@ -1,4 +1,4 @@
-### Architecture
+### Architecture Overview
 ![Architecture](./images/chat_system_architecture.png)
 
 ### Environment
