@@ -68,7 +68,7 @@ func createMessage(c *gin.Context) {
 	chatNumber := c.Param("chat_number")
 	body := c.Query("body")
 	if body == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing message body"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing message 'body' paramater"})
 		return
 	}
 
