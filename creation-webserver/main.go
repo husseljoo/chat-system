@@ -54,6 +54,7 @@ func createChat(c *gin.Context) {
 	}
 	jsonResponse := map[string]interface{}{
 		"chat_number": chatNumber,
+		"number":      chatNumber,
 	}
 
 	jobId := AddJob(QUEUE_CHATS, time.Now(), token, chatNumber)
@@ -80,6 +81,7 @@ func createMessage(c *gin.Context) {
 	}
 	jsonResponse := map[string]interface{}{
 		"message_number": messageNumber,
+		"number":         messageNumber,
 	}
 
 	jobId := AddJob(QUEUE_MESSAGES, time.Now(), token, chatNumber, messageNumber, body)

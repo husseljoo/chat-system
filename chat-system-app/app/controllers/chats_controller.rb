@@ -32,7 +32,7 @@ class ChatsController < ApplicationController
     end
 
     CreateChatJob.perform_later(token, chat_number)
-    render json: { chat_number: chat_number }, status: :created
+    render json: { chat_number: chat_number, number: chat_number }, status: :created
   end
 
   # PATCH/PUT /chats/1
