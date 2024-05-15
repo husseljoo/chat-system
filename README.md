@@ -15,7 +15,7 @@
 - **Elasticsearch**: Supports full-text search capabilities for message bodies (partial body matching).
 
 #### Design decisions:
-
+- its possible (and probably better) to use the golang api to simply enqueue the jobs to redis and let sidekiq handle all background processing as it has to the same ActiveRecord models as the Rails application. In that case, the golang endpoints will simply enqueue to the same queue that sidekiq is polling from (I already have Active Jobs for CreateChat and CreatMessage), rather than the queues the golang workers are polling from. Changing the `QUEUE_CHATS` and `QUEUE_MESSAGES` env variables will do the job, as long as the golang api passes the needed paramaters in the same order the corresponding ActiveJob is expecting. The golang workers are just to showcase both sides, they are plug and play pretty much.
 - application creation will wait until persisted to DB (could be made asynchronous), but decided to guarantee persistence
 - service generator and workers use the same Redis service however for larger scale or stricter isolation separate Redis instances could be deployed for each service
 
