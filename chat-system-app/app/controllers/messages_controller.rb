@@ -47,7 +47,7 @@ class MessagesController < ApplicationController
     end
 
     CreateMessageJob.perform_later(token, chat_number, message_number, body)
-    render json: { message_number: message_number }, status: :created
+    render json: { message_number: message_number, number: message_number }, status: :created
   end
 
   # PATCH/PUT /applications/{application_token}/chats/{chat_number}/messages/{number}
