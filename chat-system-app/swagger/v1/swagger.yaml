@@ -5,11 +5,17 @@ info:
   version: v1
 paths:
   "/applications":
+    parameters:
+    - name: name
+      in: query
+      description: name of app
+      required: true
+      schema:
+        type: string
     post:
       summary: create application
       responses:
         '200':
-          description: successful
   "/applications/{token}":
     parameters:
     - name: token
@@ -20,11 +26,6 @@ paths:
         type: string
     get:
       summary: show application
-      responses:
-        '200':
-          description: successful
-    patch:
-      summary: update application
       responses:
         '200':
           description: successful
@@ -71,6 +72,12 @@ paths:
       required: true
       schema:
         type: string
+    - name: body
+      in: query
+      description: message body
+      required: true
+      schema:
+        type: string
     get:
       summary: show chat
       responses:
@@ -96,6 +103,12 @@ paths:
       required: true
       schema:
         type: string
+    - name: query
+      in: query
+      description: query to match message bodies partially with
+      required: false
+      schema:
+        type: string
     get:
       summary: list messages
       responses:
@@ -103,6 +116,13 @@ paths:
           description: successful
     post:
       summary: create message
+      parameters:
+      - name: body
+        in: query
+        description: message body to be updated
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: successful
@@ -131,13 +151,15 @@ paths:
       responses:
         '200':
           description: successful
-    patch:
-      summary: update message
-      responses:
-        '200':
-          description: successful
     put:
       summary: update message
+      parameters:
+      - name: body
+        in: query
+        description: message body to be updated
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: successful
@@ -150,6 +172,13 @@ paths:
   "/api/search":
     get:
       summary: search message
+      parameters:
+      - name: query
+        in: query
+        description: query to partially match message bodies with
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: successful
