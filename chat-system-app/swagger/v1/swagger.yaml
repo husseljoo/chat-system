@@ -16,6 +16,16 @@ paths:
       summary: create application
       responses:
         '200':
+        description: successful
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: name of app
+                  example: FoodApp
   "/applications/{token}":
     parameters:
     - name: token
@@ -29,11 +39,43 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: application_token
+                    example: 5Z1fFC7CxNjm
+                  name:
+                    type: string
+                    description: name of app
+                    example: FoodApp
+                  chats_count:
+                    type: integer
+                    example: 23
     put:
       summary: update application
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: application_token
+                    example: 5Z1fFC7CxNjm
+                  name:
+                    type: string
+                    description: name of app
+                    example: FoodTruckApp
+                  chats_count:
+                    type: integer
+                    example: 23
   "/all-applications":
     get:
       summary: list applications
@@ -58,6 +100,15 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: integer
+                    description: chat number
+                    example: 24
   "/applications/{application_token}/chats/{number}":
     parameters:
     - name: application_token
@@ -83,6 +134,22 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: application_token
+                    example: 5Z1fFC7CxNjm
+                  number:
+                    type: integer
+                    description: chat number
+                    example: 23
+                  messages_count:
+                    type: integer
+                    example: 420
   "/all-chats":
     get:
       summary: all_chats chat
@@ -126,6 +193,15 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: integer
+                    description: message number
+                    example: 380
   "/applications/{application_token}/chats/{chat_number}/messages/{number}":
     parameters:
     - name: application_token
@@ -151,6 +227,18 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: integer
+                    description: number of message
+                    example: 380
+                  body:
+                    type: text
+                    example: "Claim out front ready wear political. From learn let outside."
     put:
       summary: update message
       parameters:
@@ -163,6 +251,18 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: integer
+                    description: number of message
+                    example: 380
+                  body:
+                    type: text
+                    example: "Claim out front ready wear political. From learn let outside."
   "/all-messages":
     get:
       summary: all_messages message
