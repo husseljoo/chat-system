@@ -22,10 +22,10 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                token:
                   type: string
-                  description: name of app
-                  example: FoodApp
+                  description: application token
+                  example: 5Z1fFC7CxNjm
   "/applications/{token}":
     parameters:
     - name: token
@@ -82,6 +82,21 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: token of application
+                      example: 5Z1fFC7CxNjm
+                    name:
+                      type: string
+                      description: name of app
+                      example: FoodApp
   "/applications/{application_token}/chats":
     parameters:
     - name: application_token
@@ -95,6 +110,21 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: token of application
+                      example: 5Z1fFC7CxNjm
+                    number:
+                      type: integer
+                      description: number of chat
+                      example: 13
     post:
       summary: create chat
       responses:
@@ -181,6 +211,19 @@ paths:
       responses:
         '200':
           description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    description: body of message
+                    example: "Claim out front ready wear political. From learn let outside."
+                  number:
+                    type: integer
+                    description: number of message
+                    example: 230
     post:
       summary: create message
       parameters:
@@ -263,25 +306,6 @@ paths:
                   body:
                     type: text
                     example: "Claim out front ready wear political. From learn let outside."
-  "/all-messages":
-    get:
-      summary: all_messages message
-      responses:
-        '200':
-          description: successful
-  "/api/search":
-    get:
-      summary: search message
-      parameters:
-      - name: query
-        in: query
-        description: query to partially match message bodies with
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: successful
 servers:
 - url: https://{defaultHost}
   variables:
